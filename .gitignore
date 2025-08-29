@@ -1,0 +1,19 @@
+# Python
+venv/
+.env
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# OS/Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Streamlit/plots/cache
+.streamlit/
