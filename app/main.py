@@ -1,4 +1,3 @@
-# app/ui_main.py
 import json
 import streamlit as st
 import plotly.graph_objects as go
@@ -90,7 +89,7 @@ with right:
         wpm_scaled = min(aux['wpm'] / 3.0, 100)
         filler_scaled = max(0, min((1 - aux['filler_rate']) * 100, 100))
         values = [top['accuracy'], top['clarity'], top['persuasion'], wpm_scaled, filler_scaled]
-        labels = ["Accuracy", "Clarity", "Persuasiveness", "WPM", "Filler\n(the lower the better)"]
+        labels = ["Accuracy", "Clarity", "Persuasiveness", "WPM", "Fluency"]
         values += values[:1]
         labels += labels[:1]
 
