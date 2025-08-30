@@ -1,4 +1,4 @@
-# Live Quality – Minimal MVP
+# Live Quality Analysis
 
 ## Setup
 
