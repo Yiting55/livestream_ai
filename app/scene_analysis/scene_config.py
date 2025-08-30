@@ -42,4 +42,3 @@ class SceneConfig:
     w_saturation: float = 0.10
     w_colorcast: float = 0.10
     w_logo: float = 0.10
-
