@@ -182,3 +182,60 @@ def _normalize_bundle(res: Dict[str, Any]) -> Dict[str, Any]:
         "debug": dbg,
     }
     return out
+from typing import Tuple
+
+def _compress_seconds_to_ranges(seconds: List[int]) -> List[Tuple[int, int]]:
+    """Helper: compress list of seconds into ranges."""
+    if not seconds:
+        return []
+    seconds = sorted(set(int(s) for s in seconds))
+    ranges = []
+    start = prev = seconds[0]
+    for s in seconds[1:]:
+        if s == prev + 1:
+            prev = s
+        else:
+            ranges.append((start, prev))
+            start = prev = s
+    ranges.append((start, prev))
+    return ranges
+
+def summarize_scene(scene_dict: Dict[str, Any]) -> Tuple[str, List[Dict[str, Any]]]:
+    """
+    Summarize scene analysis results.
+    Returns:
+      - summary_markdown (str): top summary block
+      - moments (list[dict]): OCR/Logo moments with compressed ranges
+    """
+    score = float(scene_dict.get("score", 0))
+    sig   = scene_dict.get("signals", {}) or {}
+
+    summary_md = []
+    summary_md.append(f"### ✅ Scene Summary")
+    summary_md.append(f"- **Visual Score:** **{score:.1f}** / 100")
+    if "brightness_mean" in sig: summary_md.append(f"- Brightness (mean): **{sig['brightness_mean']:.1f}**")
+    if "contrast_bw" in sig:     summary_md.append(f"- Contrast (B/W): **{sig['contrast_bw']:.1f}**")
+    if "sharpness_varlap" in sig: summary_md.append(f"- Sharpness (VarLap): **{sig['sharpness_varlap']:.1f}**")
+    if "saturation_mean" in sig: summary_md.append(f"- Saturation (mean): **{sig['saturation_mean']:.1f}**")
+    if "color_cast" in sig:      summary_md.append(f"- Color Cast: **{sig['color_cast']:.1f}**")
+    if "logo_visible_ratio" in sig: summary_md.append(f"- Logo Visible Ratio: **{sig['logo_visible_ratio']:.3f}**")
+    if "logo_area_mean" in sig:  summary_md.append(f"- Avg Logo Area: **{sig['logo_area_mean']:.1f}**")
+
+    # Timeline: OCR = text_area>0, Logo=True
+    tl = scene_dict.get("timeline", []) or []
+    ocr_seconds  = [int(row.get("t", 0)) for row in tl if float(row.get("text_area", 0) or 0) > 0]
+    logo_seconds = [int(row.get("t", 0)) for row in tl if bool(row.get("logo", False))]
+
+    ocr_ranges  = _compress_seconds_to_ranges(ocr_seconds)
+    logo_ranges = _compress_seconds_to_ranges(logo_seconds)
+
+    moments: List[Dict[str, Any]] = []
+    for a, b in ocr_ranges:
+        moments.append({"type": "OCR text", "start_s": a, "end_s": b})
+    for a, b in logo_ranges:
+        moments.append({"type": "Brand/Logo", "start_s": a, "end_s": b})
+
+    if not moments:
+        summary_md.append("> No OCR text or brand/logo detected in the timeline.")
+
+    return "\n".join(summary_md), moments
