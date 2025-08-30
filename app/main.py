@@ -32,23 +32,41 @@ with left:
             st.session_state["analysis"] = result
             st.success("分析完成（临时文件已清理）")
 
+# main.py (only touch the "right" panel section)
+# app/main.py（右侧展示区替换）
 with right:
     st.subheader("右侧：分析结果")
     if "analysis" not in st.session_state:
         st.info("等待左侧上传并点击“开始分析”。")
     else:
         res = st.session_state["analysis"]
-        # 基础指标（占位：亮度）
-        st.metric("平均亮度", f"{res['avg_brightness']:.1f} / 255")
-        st.metric("亮度评分（示例）", f"{res['brightness_score']:.1f} / 100")
-        st.caption("说明：当前仅展示亮度占位指标；后续会加入互动性/话术/真实性/专业性/画面氛围等维度。")
 
-        # 价值分享（示例）：用亮度评分充当总分 Q 的替身
-        q = float(res["brightness_score"])
-        if q >= 80: mult = 1.2
-        elif q >= 60: mult = 1.0
-        elif q >= 40: mult = 0.8
-        else: mult = 0.6
-        base_pool = 100
-        st.write(f"**价值分享示意**：基础池 {base_pool} × 质量乘数 {mult} = **{base_pool * mult:.1f}**")
-        st.caption("最终会改为：基础池 × 质量乘数(Q) × 互动乘数(评论密度)。")
+        st.markdown("### 🗣️ Language (EN) – Mini Scores")
+        ls = res.get("lang_scores") or {}
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.metric("Accuracy/Compliance", f"{ls.get('accuracy', 0):.1f}")
+        with c2:
+            st.metric("Clarity", f"{ls.get('clarity', 0):.1f}")
+        with c3:
+            st.metric("Persuasion (CTA)", f"{ls.get('persuasion', 0):.1f}")
+        with c4:
+            st.metric("WPM", f"{ls.get('wpm', 0):.1f}")
+        st.caption(f"Filler rate: {ls.get('filler_rate', 0.0)} (lower is better)")
+
+        st.markdown("#### Interaction & Pacing")
+        inter = res.get("lang_interaction") or {}
+        colA, colB, colC = st.columns(3)
+        sig = inter.get("signals") or {}
+        with colA: st.metric("Question Ratio", str(sig.get("question_ratio", 0.0)))
+        with colB: st.metric("CTA Hits", str(sig.get("cta_hits", 0)))
+        with colC: st.metric("Reply Rate", str(sig.get("reply_rate", 0.0)))
+        st.caption("Timeline per 10s window")
+        st.dataframe(inter.get("timeline") or [])
+
+        st.markdown("#### Exaggeration / Compliance")
+        ex = res.get("lang_exaggeration") or {}
+        st.write("Hits:", (ex.get("signals") or {}).get("exaggeration_hits", 0))
+        st.write("Terms:", (ex.get("signals") or {}).get("terms", []))
+        with st.expander("Highlights"):
+            st.json(ex.get("highlights") or [])
