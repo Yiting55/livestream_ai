@@ -1,16 +1,16 @@
-# 🎥 **Livestream Quality & Reward Evaluation System**
+# 🎥 **StreamWise - Livestream Quality & Reward Evaluation System**
 
-A **Streamlit-based application** designed to evaluate content quality, audience engagement, and compliance for platforms like TikTok, with the ultimate goal of supporting a **fair and transparent reward mechanism**. The system evaluates **content quality**, **audience interaction**, and **compliance checks** to ensure that creators are compensated based on their contributions and engagement.
+StreamWise is a **Streamlit-based application** designed to evaluate the quality, engagement, and compliance of live streams, particularly for eCommerce platforms like TikTok. Its ultimate goal is to support a **fair and transparent reward mechanism**, ensuring that content creators are compensated based on their actual contributions and engagement.
 
----
 
-## ✨ **Overview**
 
-This tool provides a **multi-dimensional** analysis of livestreams and videos, aiming to align with the goals of designing a fair reward mechanism for content creators. The application evaluates key factors such as **content quality**, **audience engagement**, **compliance with regulations**, and **fraud prevention**, addressing the core challenges faced by platforms like TikTok. While the current functionality does not directly implement reward mechanisms, the system provides a foundation for evaluating performance and ensuring compliance, which are key to designing a transparent value-sharing system.
+##  **Inspiration**
 
----
+With the rapid rise of eCommerce live streaming, many viewers experience frustration with low-quality, unengaging broadcasts. Streamers often lack energy, leading to a poor user experience. We wanted to create a solution that not only helps viewers find high-quality content but also empowers creators to improve. The goal was to build a platform that quantifies livestream quality, promotes transparency, and enhances the user experience, ultimately contributing to a better reward system for creators.
 
-## ✨ **Features**
+
+
+##  **Features**
 
 ### **1. Video Upload & Preview**
 - **Upload and preview videos** directly in the browser, supporting `.mp4` and `.mov` formats.
@@ -55,47 +55,58 @@ This tool provides a **multi-dimensional** analysis of livestreams and videos, a
 ### **5. Temp File Management**
 - **Efficient File Handling**: Uploaded files are automatically deleted after analysis, ensuring efficient use of storage and protecting user privacy.
 
----
-
-## 🚧 **Challenges Addressed**
-
-While the system does not yet implement a full reward mechanism, it directly supports the design of a transparent value-sharing model by addressing several challenges:
-
-1. **Content Quality Evaluation**: Analyzing content clarity, accuracy, and persuasion through **ASR** and **NLP** to determine if the content meets the required standards for fair compensation.
-  
-2. **Audience Interaction**: Ensuring that creators are rewarded based on engagement metrics such as CTAs, questions, and replies.
-
-3. **Compliance**: Detecting problematic content by flagging **exaggeration** or **misleading claims**, ensuring creators adhere to platform regulations.
-
-4. **Fraud Prevention**: Ensuring that the performance metrics are legitimate and immune to manipulation, such as artificially inflating engagement or metrics.
-
-5. **Bonus Point System**: Rewarding creators with bonus points based on the quality and impact of their content, which can serve as a foundation for future reward structures.
-
----
 
 
-## ⚙️ **Tech Stack**
+##  **Challenges we ran into**
 
-- **Python**: Primary programming language for backend analysis.
-- **Streamlit**: Interactive UI framework for real-time, in-browser content evaluation.
-- **faster-whisper / openai-whisper**: ASR tools for transcription and content analysis.
-- **OpenCV**: Video frame analysis for assessing visual quality and detecting compliance issues.
-- **MediaPipe**: Facial expression and emotion analysis for engagement detection.
-- **MoviePy**: Video/audio extraction for content analysis.
-- **Plotly / Matplotlib**: For visualizing key metrics like content quality and engagement.
-- **NumPy / Pandas**: Data handling for performance metrics and scoring.
+- **Unfamiliarity with Video Analysis**: Working with video content was a new area for our team, and it required significant time to explore and learn the tools and techniques for accurate video analysis.
+- **Finding Quality Test Videos**: It was challenging to find a variety of test videos that effectively demonstrated differences in content quality, which made it difficult to fine-tune the system.
 
----
 
-## 🚩 **Problem Statement**
+
+##  **Accomplishments that we're proud of**
+
+- **Team Collaboration**: Despite the challenges of working during the semester, our team maintained strong communication, aligned on key details early, and kept an open line of discussion throughout the process.
+- **Working Web App**: We successfully built a functioning web app that enables video analysis, contributing to the reimagination of a transparent and effective reward system for eCommerce live streaming.
+- **Deeper Understanding**: Our project gave us a much clearer understanding of the critical elements that define high-quality eCommerce live streams, such as audience engagement, energy levels, and presentation clarity.
+
+
+
+##  **What we learned**
+
+- **Critical Elements of a High-Quality Stream**: We learned the importance of factors like presenter energy, pacing, and audience interaction in determining the success of a live stream.
+- **Dynamic Nature of Live Content**: We gained a deeper understanding of how live stream content needs to be dynamic and responsive to keep the audience engaged, rather than static.
+- **Tech Integration**: Integrating various analysis tools like speech-to-text, emotion recognition, and video quality assessment required us to better understand how these components can seamlessly work together to enhance the user experience.
+
+
+
+##  **What's next for StreamWise**
+
+- **Faster Processing for Longer Videos**: Currently, the system can only process shorter videos, and longer videos take more time to analyze. Improving the processing speed for longer videos is a priority for future updates.
+- **Enhanced Visualizations**: We plan to improve the visual representation of each quality criterion, providing users with clearer, more actionable insights into the strengths and weaknesses of their streams.
+- **AI-Driven Recommendations**: Moving beyond simple scores, we aim to build AI-driven recommendations that offer personalized advice to creators, helping them improve specific aspects of their live streams.
+
+##  **Tech Stack**
+
+We built StreamWise using **Streamlit** for the interactive frontend, ensuring an easy-to-use interface for real-time analysis. For backend processing:
+
+- **faster-whisper** was integrated for speech-to-text analysis, converting live stream audio into text.
+- **OpenCV** was used to assess video quality (brightness, contrast, sharpness, etc.).
+- **MediaPipe** provided emotion analysis to measure the presenter's engagement and enthusiasm.
+- **Tesseract OCR** was used to extract on-screen text, improving brand detection and content accuracy.
+- **MoviePy** was used for video/audio extraction, enabling in-depth content analysis.
+
+We also utilized **Python** libraries like **Pandas** and **NumPy** for data processing and analysis. For visualizing key metrics like content quality and engagement, we used **Plotly** and **Matplotlib** to create intuitive and interactive charts.
+
+
+##  **Problem Statement**
 
 TikTok-like platforms face challenges in ensuring that **content creators** are compensated fairly, based on the quality of their content and the level of audience engagement. However, designing an automated reward mechanism that incorporates **fairness**, **compliance**, and **fraud prevention** is a complex task. This system provides a solution by evaluating key content factors, such as **clarity**, **engagement**, and **compliance**. These insights can be used as the foundation for building transparent and fair reward mechanisms for creators.
 
 The system does not yet handle **profit distribution** directly, but it creates a pathway for transparent evaluation, which is crucial for designing a legitimate value-sharing system for creators.
 
----
 
-## 🛠️ **Setup**
+##  **Setup**
 
 ### 1. Clone the repository
 ```bash
@@ -121,7 +132,7 @@ pip install -r requirements.txt
 ```
 ### 4. Install ASR backend and utilities
 ```bash
-pip install faster-whisper moviepy
+pip install faster-whisper moviepy mediapipe
 ```
 ### 5. Install ffmpeg
 ```bash
