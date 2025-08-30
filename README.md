@@ -6,7 +6,19 @@ python -m venv venv
 source venv/bin/activate
 # windows
 venv\Scripts\activate
+
+# import requirement
 pip install -r requirements.txt
+
+# 依赖
+pip install opencv-python numpy pytesseract pillow
+# 系统OCR
+# macOS
+brew install tesseract
+# Ubuntu
+sudo apt-get install -y tesseract-ocr
+# Windows
+scoop install tesseract
 
 ## Run
 streamlit run app/main.py
