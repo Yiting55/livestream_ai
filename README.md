@@ -36,10 +36,10 @@ cd livestream_ai
 ### 2. Create and activate virtual environment
 python -m venv venv
 
-# macOS / Linux
+#macOS / Linux
 source venv/bin/activate
 
-# Windows
+#Windows
 venv\Scripts\activate
 
 ### 3. Install dependencies
@@ -52,16 +52,16 @@ pip install faster-whisper moviepy
 ffmpeg -version
 
 ### 6. Install Tesseract OCR (for Scene Analysis, optional)
-# macOS
+#macOS
 brew install tesseract
 
-# Windows (with Scoop)
+#Windows (with Scoop)
 scoop install tesseract
 
 ### 7. Run the application
 streamlit run app/main.py
 
-##📚Tech Stack
+## 📚Tech Stack
 
 Python 3.9+ / 3.10+
 Streamlit – interactive UI framework
@@ -73,7 +73,7 @@ MoviePy – audio extraction & frame handling
 Plotly – visualization (charts, timelines, radar)
 NumPy / Pandas – data processing
 
-##🚩 Problem Addressed
+## 🚩 Problem Addressed
 Livestream e-commerce is expanding rapidly, but quality and compliance vary greatly.
 This project provides an automated, objective scoring system to evaluate livestreams across multiple dimensions:
 - Engagement (questions, CTAs, replies)
@@ -84,7 +84,7 @@ This project provides an automated, objective scoring system to evaluate livestr
 - Emotion (positivity and energy)
 It enables sellers, reviewers, and brands to ensure livestreams are engaging, compliant, and effective.
 
-##📤 Output
+## 📤 Output
 
 The app produces structured results containing:
 Scores (Accuracy, Clarity, Persuasion, Compliance, Interaction, Scene, Emotion)
