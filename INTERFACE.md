@@ -1,4 +1,4 @@
-## Public API (same-process)
+## Scene_analysis
 
 ### analyze_scene_from_upload(file, filename, *, brand_keywords=None, config=SceneConfig()) -> dict
 ### analyze_video(video_path, *, brand_keywords=None, config=SceneConfig()) -> dict
@@ -23,6 +23,33 @@
     "video": {"fps": float, "frames": int, "duration_s": float},
     "sampling": {"sample_fps": float, "frames_sampled": int, "ocr_every_s": float, "ocr_attempts": int, "ocr_hits": int},
     "timing": {"total_s": float, "avg_per_frame_ms": float, "avg_ocr_ms": float}
+  }
+}
+
+
+## emotion_analysis
+
+### analyze_emotion(video_path, config=EmotionConfig()) -> dict
+
+**Return JSON**
+{
+  "emotion": {
+    "score": float,  // Overall emotion score (0-100)
+    "signals": {
+      "valence_mean": float,  // Mean of valence signals (0-1)
+      "energy_mean": float   // Mean of energy signals (0-1)
+    },
+    "timeline": [
+      {"t": float, "valence": float, "energy": float, "smile": float, "eye": float, "mouth": float, "head": float}
+    ],
+    "highlights": [
+      {"start": float, "end": float, "reason": "string"}
+    ]
+  },
+  "perf": {
+    "video": {"fps": float, "frames": int, "duration_s": float},
+    "sampling": {"sample_fps": float, "frames_sampled": int, "valid_frames": int, "detection_rate": float},
+    "timing": {"total_s": float, "avg_per_frame_ms": float}
   }
 }
 
