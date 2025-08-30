@@ -1,4 +1,3 @@
-# scene_analysis/face_locator.py
 from __future__ import annotations
 from typing import Optional, Tuple
 import cv2
@@ -6,23 +5,19 @@ import numpy as np
 import mediapipe as mp
 
 class FaceLocator:
-    """用 MediaPipe FaceDetection（BlazeFace）在整帧里找人脸，并返回加 margin 的 ROI。"""
     def __init__(self, min_conf: float = 0.5, model_selection: int = 0, margin: float = 0.35):
-        # model_selection=0 适合近距离，1 适合远距离。直播通常 0 就够；远景多可切 1。
         self.detector = mp.solutions.face_detection.FaceDetection(
             model_selection=model_selection, min_detection_confidence=min_conf
         )
         self.margin = margin
 
     def locate(self, frame_bgr) -> Optional[Tuple[Tuple[int,int,int,int], Tuple[float,float], float]]:
-        """返回 ((x,y,w,h), center(x,y), face_size_w)；找不到返回 None。"""
         h, w = frame_bgr.shape[:2]
         rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         res = self.detector.process(rgb)
         if not res.detections:
             return None
 
-        # 挑选“面积×置信度”最大的脸
         best = None; best_score = 0.0
         for d in res.detections:
             bb = d.location_data.relative_bounding_box
@@ -37,7 +32,6 @@ class FaceLocator:
 
         x, y, ww, hh = best
         cx, cy = x + ww / 2.0, y + hh / 2.0
-        # 扩边 margin（默认 35%），并裁剪到画面范围内
         m = self.margin
         W2, H2 = int(ww * (1 + m)), int(hh * (1 + m))
         x2 = max(0, int(cx - W2 / 2)); y2 = max(0, int(cy - H2 / 2))

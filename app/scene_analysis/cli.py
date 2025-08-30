@@ -22,7 +22,6 @@ if __name__ == "__main__":
 
     out = analyze_video(args.video, brand_keywords=set(args.keywords) if args.keywords else None, config=cfg)
 
-    # —— 性能概要打印 ——
     perf = out.get("perf", {})
     video = perf.get("video", {})
     samp  = perf.get("sampling", {})
@@ -34,7 +33,6 @@ if __name__ == "__main__":
     print(f"OCR: every {samp.get('ocr_every_s','?')} s  | attempts: {samp.get('ocr_attempts','?')}  | hits: {samp.get('ocr_hits','?')}")
     print(f"Timing: total {time.get('total_s','?')} s  | avg/frame {time.get('avg_per_frame_ms','?')} ms  | avg OCR {time.get('avg_ocr_ms','?')} ms")
 
-    # —— 结果输出：默认打印 scene JSON；可选写入文件 ——
     scene_only = {"scene": out.get("scene", {})}
     print(json.dumps(scene_only, ensure_ascii=False, indent=2))
 

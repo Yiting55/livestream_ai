@@ -4,7 +4,6 @@ from typing import Tuple
 
 @dataclass
 class SceneConfig:
-    """可调参数集中在这里，方便一处改动全局生效。"""
     # 采样频率（抽帧）
     sample_fps: float = 1.0                 # 每秒取几帧做质量度量
     ocr_every_s: float = 5.0                # 每隔N秒做一次OCR（减少开销）

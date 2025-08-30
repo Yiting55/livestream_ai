@@ -6,9 +6,8 @@ import cv2, numpy as np
 import mediapipe as mp
 
 from .emotion_config import EmotionConfig
-from .emotion_features import extract_face_metrics  # 内部已做人脸检测→ROI→FaceMesh；无脸返回 None
+from .emotion_features import extract_face_metrics  
 
-# ----------------- helpers -----------------
 def moving_avg(arr: List[float], k: int) -> List[float]:
     """Simple moving average of a list with window k (k>=1)."""
     if k <= 1 or len(arr) == 0:
@@ -27,8 +26,6 @@ def moving_avg(arr: List[float], k: int) -> List[float]:
 
 def adapt_norm(x: np.ndarray, p_lo: float = 5, p_hi: float = 85,
                floor: float = 0.20, ceil: float = 0.98, gamma: float = 0.85) -> np.ndarray:
-    """将原始特征按每视频分位数映射到 [floor, ceil]；gamma(<1) 抬高中段。
-    更稳地适配不同机位/光照，避免整体偏低。"""
     if len(x) == 0:
         return x
     lo = float(np.percentile(x, p_lo))
@@ -40,7 +37,6 @@ def adapt_norm(x: np.ndarray, p_lo: float = 5, p_hi: float = 85,
     return np.clip(floor + (ceil - floor) * z, 0.0, 1.0)
 
 def topk_mean_rowwise(M: np.ndarray, k: int) -> np.ndarray:
-    """对每一帧(一行)取 top-k 平均，k=2 更像 "OR"，任意两项高即可拉高整体。"""
     if M.ndim != 2:
         M = np.atleast_2d(M)
     k = max(1, min(k, M.shape[1]))
@@ -48,7 +44,6 @@ def topk_mean_rowwise(M: np.ndarray, k: int) -> np.ndarray:
     return Ms[:, -k:].mean(axis=1)
 
 def peak_hold(series: np.ndarray, tau_s: float, fps: float) -> np.ndarray:
-    """峰值保持：把短暂峰值在约 tau_s 内缓慢衰减，避免瞬时回落。"""
     out = np.zeros_like(series, dtype=np.float32)
     if len(series) == 0:
         return out
@@ -60,8 +55,7 @@ def peak_hold(series: np.ndarray, tau_s: float, fps: float) -> np.ndarray:
     return out
 
 def calibrate_score(base_mean: float, cfg: EmotionConfig) -> float:
-    """可选的分数标定：不改时序，仅在最终分上做温和靠拢（默认关闭）。"""
-    mode = getattr(cfg, "calibration_mode", "none")  # none | affine | target_mean
+    mode = getattr(cfg, "calibration_mode", "none")  
     floor = float(getattr(cfg, "score_floor", 0.0)) / 100.0
     ceil  = float(getattr(cfg, "score_ceiling", 100.0)) / 100.0
     base = float(np.clip(base_mean, 0.0, 1.0))
@@ -80,7 +74,6 @@ def calibrate_score(base_mean: float, cfg: EmotionConfig) -> float:
     y = float(np.clip(y, floor, ceil))
     return 100.0 * y
 
-# ----------------- main -----------------
 def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) -> Dict[str, dict]:
     t0 = time.perf_counter()
 
@@ -92,7 +85,6 @@ def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) ->
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     duration = float(total_frames / max(fps, 1e-6)) if total_frames > 0 else 0.0
 
-    # 自动降采样（长视频更省时）
     sample_fps = float(getattr(config, "sample_fps", 1.0))
     if getattr(config, "autoscale_enabled", True):
         mins = duration / 60.0
@@ -102,7 +94,6 @@ def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) ->
             sample_fps = min(sample_fps, 1.0)
     step = max(int(round(fps / max(sample_fps, 1e-6))), 1)
 
-    # 收集原始序列（仅包含“有人脸”的有效采样帧）
     raw_t: List[float] = []
     raw_smile: List[float] = []
     raw_eye: List[float] = []
@@ -112,16 +103,15 @@ def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) ->
     sampled_frames = 0
     valid_frames = 0
 
-    # 复用一个 FaceMesh 实例（更快）
     with mp.solutions.face_mesh.FaceMesh(
         static_image_mode=getattr(config, "static_image_mode", False),
-        max_num_faces=getattr(config, "max_num_faces", 1),  # ROI 内仅取 1 张脸
+        max_num_faces=getattr(config, "max_num_faces", 1),  
         refine_landmarks=getattr(config, "refine_landmarks", True),
         min_detection_confidence=getattr(config, "min_detection_confidence", 0.5),
         min_tracking_confidence=getattr(config, "min_tracking_confidence", 0.5),
     ) as face_mesh:
 
-        prev_center: Optional[Tuple[float, float]] = None  # 全图坐标的人脸中心（来自检测框）
+        prev_center: Optional[Tuple[float, float]] = None  
         i = 0
         while True:
             ret, frame = cap.read()
@@ -133,13 +123,11 @@ def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) ->
             t = i / max(fps, 1e-6)
             sampled_frames += 1
 
-            # 这一帧做：检测→ROI→FaceMesh（都在 extract_face_metrics 内部完成）
             m, prev_center = extract_face_metrics(frame, prev_center, config, face_mesh)
             if m is None:
                 i += 1
-                continue  # 无脸或抓 landmarks 失败 → 跳过这一帧
+                continue  
 
-            # raw metrics（未归一化）
             raw_t.append(float(t))
             raw_smile.append(float(m.get("smile", 0.0)))
             raw_eye.append(float(m.get("eye_open", 0.0)))
@@ -150,7 +138,6 @@ def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) ->
 
     cap.release()
 
-    # 无有效帧兜底
     if valid_frames == 0:
         total_s = time.perf_counter() - t0
         perf = {
@@ -168,48 +155,39 @@ def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) ->
             "perf": perf,
         }
 
-    # 自适应归一化（每视频 p5~p85 + gamma）
     smile_n = adapt_norm(np.array(raw_smile, dtype=np.float32))
     eye_n   = adapt_norm(np.array(raw_eye,   dtype=np.float32))
     mouth_n = adapt_norm(np.array(raw_mouth, dtype=np.float32))
     head_n  = adapt_norm(np.array(raw_head,  dtype=np.float32))
 
-    # 动态（相邻差分，捕捉眨眼/说话）
     eye_var   = np.abs(np.diff(eye_n,   prepend=eye_n[:1]))
     mouth_var = np.abs(np.diff(mouth_n, prepend=mouth_n[:1]))
 
-    # === Valence ===
     w_smile    = getattr(config, "w_smile", 0.6)
     w_eye_open = getattr(config, "w_eye_open", 0.4)
     valence = w_smile * smile_n + w_eye_open * eye_n
 
-    # === Energy（OR 风格 + 峰值保持）===
-    # 组件：嘴部动态（取绝对值与变化度的较大者）、头动、眼部变化
-    c_mouth = np.maximum(mouth_n, 1.30 * mouth_var)   # 说话时 mouth_var 高，优先体现
+    c_mouth = np.maximum(mouth_n, 1.30 * mouth_var)   
     c_head  = head_n
     c_eye   = eye_var
 
-    C = np.stack([c_mouth, c_head, c_eye], axis=1)    # [T,3]
-    energy_core = topk_mean_rowwise(C, k=2)           # 任意两项高就能拉高整体
+    C = np.stack([c_mouth, c_head, c_eye], axis=1)    
+    energy_core = topk_mean_rowwise(C, k=2)           
     hold = peak_hold(energy_core, tau_s=1.0, fps=sample_fps)
     energy = np.clip(0.6 * energy_core + 0.4 * hold, 0.0, 1.0)
 
-    # 平滑（秒→样本）
     k = max(1, int(round(getattr(config, "smooth_window_s", 1.5) * sample_fps)))
     valence_s = moving_avg(list(valence), k)
     energy_s  = moving_avg(list(energy),  k)
 
-    # clip 到 [0,1]；可按需抬底（例如 0.1+0.9*x）
     valence_s = [float(np.clip(v, 0.0, 1.0)) for v in valence_s]
     energy_s  = [float(np.clip(e, 0.0, 1.0)) for e in energy_s]
 
-    # 计算分数（0..100）
     w_valence = getattr(config, "w_valence", 0.6)
     w_energy  = getattr(config, "w_energy",  0.4)
     base_mean = (w_valence * float(np.mean(valence_s)) + w_energy * float(np.mean(energy_s)))
-    score = calibrate_score(base_mean, config)  # 默认不校准；可在 config 里切换
+    score = calibrate_score(base_mean, config)  
 
-    # 高亮片段
     def compress_runs(times: List[float], mask: List[bool], min_s: float) -> List[Tuple[float, float]]:
         out: List[Tuple[float, float]] = []
         start = None
@@ -245,7 +223,6 @@ def analyze_emotion(video_path: str, config: EmotionConfig = EmotionConfig()) ->
     for a, b in compress_runs(raw_t, low_val_mask,  min_span):
         highlights.append({"start": float(a), "end": float(b), "reason": "积极度偏低"})
 
-    # 构建时间线（归一化后的特征 + 输出）
     timeline = [
         {
             "t": float(t),

@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import List, Tuple, Optional
 
-# —— 把布尔时间线压缩成若干区间 ——
 def compress_runs(times: List[float], mask: List[bool], min_s: float) -> List[Tuple[float, float]]:
     out: List[Tuple[float, float]] = []
     if not times:

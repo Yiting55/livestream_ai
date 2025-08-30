@@ -11,7 +11,6 @@ from .autoscale import autoscale_config
 
 # —— 主函数：analyze_video ——
 def analyze_video(video_path: str, *, brand_keywords: Optional[Set[str]] = None, config: SceneConfig = SceneConfig()) -> Dict[str, dict]:
-    """对视频做场景质量与Logo/文本露出分析，并返回可视化结构 + 性能统计。"""
     t0 = time.perf_counter()
 
     cap = cv2.VideoCapture(video_path)
@@ -22,10 +21,8 @@ def analyze_video(video_path: str, *, brand_keywords: Optional[Set[str]] = None,
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     duration = float(total_frames / max(fps, 1e-6)) if total_frames > 0 else 0.0
 
-    # —— 自动降采样：根据时长调整 ——
     eff_cfg = autoscale_config(config, duration)
 
-    # —— 抽帧：按照 sample_fps 取样 ——
     step = max(int(round(fps / max(eff_cfg.sample_fps, 1e-6))), 1)
     next_ocr_t = 0.0
 
@@ -53,7 +50,6 @@ def analyze_video(video_path: str, *, brand_keywords: Optional[Set[str]] = None,
             i += 1; continue
         t = i / max(fps, 1e-6)
 
-        # —— 单帧指标 ——
         m = frame_metrics(frame, eff_cfg)
         times.append(t)
         v_list.append(m["v_mean"])
@@ -63,7 +59,6 @@ def analyze_video(video_path: str, *, brand_keywords: Optional[Set[str]] = None,
         cast_list.append(m["color_cast"])
         sampled += 1
 
-        # —— 周期性 OCR（可选：仅在清晰帧上做） ——
         logo_hit, text_area = False, 0.0
         do_ocr = (t >= next_ocr_t)
         if eff_cfg.ocr_only_if_sharp:
@@ -102,7 +97,6 @@ def analyze_video(video_path: str, *, brand_keywords: Optional[Set[str]] = None,
         }
         return {"scene": {"score": 0.0, "signals": {"brightness_mean":0.0,"contrast_bw":0.0,"sharpness_varlap":0.0,"saturation_mean":0.0,"color_cast":0.0,"logo_visible_ratio":0.0,"logo_area_mean":0.0}, "timeline": [], "highlights": [{"start":0.0,"end":0.0,"reason":"无法抽帧/解码失败"}]}, "perf": perf}
 
-    # —— 聚合：均值/比例 ——
     v_mean = float(np.mean(v_list))
     s_mean = float(np.mean(s_list))
     bw_mean = float(np.mean(bw_list))
@@ -112,7 +106,6 @@ def analyze_video(video_path: str, *, brand_keywords: Optional[Set[str]] = None,
     logo_visible_ratio = float(ocr_logo_frames / max(ocr_frames, 1)) if ocr_frames else 0.0
     logo_area_mean = float(ocr_area_sum / max(ocr_frames, 1)) if ocr_frames else 0.0
 
-    # —— 子项得分 ——
     s_exposure   = band_score(v_mean, *eff_cfg.brightness_band)
     s_saturation = band_score(s_mean, *eff_cfg.saturation_band)
     s_contrast   = linear_score(bw_mean, *eff_cfg.contrast_band)
@@ -132,7 +125,6 @@ def analyze_video(video_path: str, *, brand_keywords: Optional[Set[str]] = None,
         eff_cfg.w_logo      * s_logo
     )
 
-    # —— 高亮片段：连续≥N秒的“暗/虚/无露出” ——
     dark_mask   = [v < eff_cfg.dark_v_thresh for v in v_list]
     blur_mask   = [vl < eff_cfg.blur_varlap_thresh for vl in varlap_list]
     nologo_mask = [not item.get("logo", False) for item in timeline] if any(d.get("logo") for d in timeline) else [True]*len(timeline)

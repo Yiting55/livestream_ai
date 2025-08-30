@@ -1,4 +1,3 @@
-# text_language.py — language scoring with richer CTA & friendlier persuasion
 from __future__ import annotations
 import math, re, os, tempfile, shutil
 from dataclasses import dataclass

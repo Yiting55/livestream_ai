@@ -3,7 +3,6 @@ from typing import Dict
 import cv2, numpy as np
 from .scene_config import SceneConfig
 
-# —— 图像缩放：按目标高度等比缩放 ——
 def resize_by_height(img: np.ndarray, target_h: int) -> np.ndarray:
     h, w = img.shape[:2]
     if h <= target_h:
@@ -12,11 +11,7 @@ def resize_by_height(img: np.ndarray, target_h: int) -> np.ndarray:
     new_w = int(w * scale)
     return cv2.resize(img, (new_w, target_h), interpolation=cv2.INTER_AREA)
 
-# —— 单帧指标：亮度、饱和度、对比度带宽、清晰度、色偏 ——
 def frame_metrics(frame_bgr: np.ndarray, cfg: SceneConfig) -> Dict[str, float]:
-    """对单帧计算基础指标。
-    返回：{"v_mean","s_mean","contrast_bw","varlap","color_cast"}
-    """
     small = resize_by_height(frame_bgr, cfg.downscale_for_metrics_h)
 
     hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)

@@ -7,19 +7,14 @@ import plotly.graph_objects as go
 from ui_api import get_topline_scores, get_aux_signals
 from backend_api import run_full_analysis
 
-# Tab renderers
 from tabs import render_language_tab, render_visual_tab, render_raw_tab
 
-
-# ---------------- Page setup ----------------
 st.set_page_config(page_title="Livestream Quality Check", layout="wide", page_icon="📹")
 st.title("📹 Livestream Quality Check")
 st.caption("Upload a livestream recording and get instant insights on language, visual quality, emotion, and scene content!")
 
-# Make left column narrower so the video preview is smaller
 left, right = st.columns([0.95, 1.05]) 
 
-# ---------------- Left: Upload & Preview ----------------
 with left:
     st.subheader("⬆️ Upload & Preview")
     uploaded = st.file_uploader("Choose a video file (mp4 / mov / m4v)", type=["mp4", "mov", "m4v"])
@@ -63,26 +58,21 @@ with left:
                 progress_bar.progress(30, "📦 Extracting audio...")
                 time.sleep(0.2)
 
-                # --- Read bytes ONCE and provide fresh handles for each step ---
                 data = uploaded.getvalue()
                 fname = uploaded.name
 
                 def fresh_upload():
                     b = io.BytesIO(data)
-                    # mimic Streamlit UploadedFile .name for downstream code that uses it
                     b.name = fname
                     return b
 
-                # Core (language + base visual)
                 progress_bar.progress(60, "📝 Running transcription & core analysis...")
                 results = run_full_analysis(fresh_upload()) 
 
-                # ---- Auto-run Emotion & Scene and merge output ----
                 emo_result = None
                 scene_result = None
                 errors = {}
 
-                # Emotion
                 progress_bar.progress(75, "💜 Running emotion analysis...")
                 try:
                     from ui_api import run_emotion_from_upload  # local import to avoid early import issues
@@ -90,7 +80,6 @@ with left:
                 except Exception as e:
                     errors["emotion"] = str(e)
 
-                # Scene (OCR/Brand)
                 progress_bar.progress(85, "🔎 Running scene (OCR/Brand) analysis...")
                 try:
                     from ui_api import run_scene_analysis as run_scene_analysis_ui
@@ -98,7 +87,6 @@ with left:
                 except Exception as e:
                     errors["scene"] = str(e)
 
-                # Merge into results
                 if emo_result:
                     results["emotion"] = emo_result.get("emotion", emo_result)
 
@@ -119,7 +107,6 @@ with left:
             st.success("✅ Done! Temporary files have been cleaned up.")
 
 
-# ---------------- Right: Results ----------------
 with right:
     st.subheader("📊 Analysis Results")
 
@@ -131,7 +118,6 @@ with right:
         vis  = analysis.get("visual", {}) or {}
         meta = analysis.get("file_meta", {}) or {}
 
-        # ===== Top Cards =====
         top = get_topline_scores(lang)
         aux = get_aux_signals(lang)
 
@@ -155,7 +141,6 @@ with right:
         ]
         labels = ["Accuracy", "Clarity", "Persuasion", "Emotion", "Scene"]
 
-        # Close the radar shape
         values += values[:1]
         labels += labels[:1]
 
@@ -179,7 +164,6 @@ with right:
         st.plotly_chart(radar, use_container_width=True)
 
 
-        # ===== Tabs (delegated) =====
         tab_lang, tab_visual, tab_raw = st.tabs(["🗣️ Language", "🎬 Visual", "🧾 Raw Data"])
         with tab_lang:
             render_language_tab(lang)

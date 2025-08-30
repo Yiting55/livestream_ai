@@ -4,14 +4,13 @@ import cv2, numpy as np
 try:
     import pytesseract
     from PIL import Image
-except Exception:  # 环境无OCR库时，降级为空实现
+except Exception:  
     pytesseract = None
     Image = None
 
 from .scene_config import SceneConfig
 from .metrics_frame import resize_by_height
 
-# —— 在一帧上做OCR，返回(词列表, 文本面积占比) ——
 def ocr_on_frame(frame_bgr: np.ndarray, cfg: SceneConfig) -> Tuple[List[str], float]:
     if pytesseract is None or Image is None:
         return [], 0.0
@@ -38,7 +37,6 @@ def ocr_on_frame(frame_bgr: np.ndarray, cfg: SceneConfig) -> Tuple[List[str], fl
     area_ratio = float(total_area / img_area) if img_area > 0 else 0.0
     return words, area_ratio
 
-# —— 根据品牌关键字判断是否“露出” ——
 def logo_hit_by_keywords(words: List[str], brand_keywords: Optional[Set[str]]) -> bool:
     if not brand_keywords:
         return False

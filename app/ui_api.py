@@ -1,4 +1,3 @@
-# app/ui_api.py
 """
 UI-facing helpers for language (A) plus optional scene/emotion modules.
 
@@ -32,8 +31,6 @@ import plotly.graph_objects as go
 
 from text_language import analyze_language
 
-
-# --------------------------- Language ---------------------------
 
 @lru_cache(maxsize=8)
 def run_language_analysis(video_path: str) -> Dict[str, Any]:
@@ -141,8 +138,6 @@ def _normalize_bundle(res: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-# --------------------------- Scene (OCR / Brand) ---------------------------
-
 def _compress_seconds_to_ranges(seconds: List[int]) -> List[Tuple[int, int]]:
     if not seconds:
         return []
@@ -210,8 +205,6 @@ def summarize_scene(scene_dict: Dict[str, Any]) -> Tuple[str, List[Dict[str, Any
     return "\n".join(summary_md), moments
 
 
-# --------------------------- Emotion ---------------------------
-
 def run_emotion_from_upload(uploaded_file, config=None) -> Dict[str, Any]:
     from emotion_analysis import analyze_emotion, EmotionConfig
     cfg = EmotionConfig()
@@ -241,7 +234,6 @@ def summarize_emotion(emotion_result: Dict[str, Any]) -> Tuple[str, List[Dict[st
     Returns:
       summary_md (str), moments (List[{"label": str, "start_s": int, "end_s": int}])
     """
-    # Root: allow both {"emotion": {...}} or {...}
     root = emotion_result.get("emotion", emotion_result) or {}
 
     score    = root.get("score", None)
@@ -249,27 +241,20 @@ def summarize_emotion(emotion_result: Dict[str, Any]) -> Tuple[str, List[Dict[st
     timeline = root.get("timeline", []) or []
     hi_input = root.get("highlights", []) or []
 
-    # Safe casts
     val_mean = float(signals.get("valence_mean", 0.0))
     eng_mean = float(signals.get("energy_mean", 0.0))
 
-    # --- Heuristics for "emotional seconds"
-    # Thresholds are relative to means but also clamp to sensible bounds.
-    # High = clearly positive/excited; Smile is a strong visible cue.
     VALENCE_HI = max(0.75, val_mean + 0.20)
     ENERGY_HI  = max(0.75, eng_mean + 0.20)
     SMILE_HI   = 0.90
 
-    # Optional "low" band (useful for contrast)
     VALENCE_LO = min(0.35, val_mean - 0.25)
 
-    # Collect seconds by category
     hi_valence_secs: List[int] = []
     hi_energy_secs:  List[int] = []
     big_smile_secs:  List[int] = []
     low_valence_secs: List[int] = []
 
-    # Keep top-3 peaks for quick callouts
     top_valence: List[Tuple[int, float]] = []
     top_energy:  List[Tuple[int, float]] = []
 
@@ -291,11 +276,9 @@ def summarize_emotion(emotion_result: Dict[str, Any]) -> Tuple[str, List[Dict[st
         top_valence.append((t, v))
         top_energy.append((t, e))
 
-    # Sort peaks by magnitude and keep top 3 unique seconds
     top_valence = [t for (t, _v) in sorted(top_valence, key=lambda kv: kv[1], reverse=True)[:3]]
     top_energy  = [t for (t, _e) in sorted(top_energy,  key=lambda kv: kv[1], reverse=True)[:3]]
 
-    # Compress contiguous seconds into ranges
     def _compress_seconds_to_ranges(seconds: List[int]) -> List[Tuple[int, int]]:
         if not seconds:
             return []
@@ -344,17 +327,14 @@ def summarize_emotion(emotion_result: Dict[str, Any]) -> Tuple[str, List[Dict[st
     if lo_ranges:
         _fmt_ranges("Low-valence dips", lo_ranges)
 
-    # Quick peak callouts
     if top_valence:
         summary_md.append(f"- 📈 Top valence seconds: {', '.join(str(x)+'s' for x in top_valence)}")
     if top_energy:
         summary_md.append(f"- ⚡ Top energy seconds: {', '.join(str(x)+'s' for x in top_energy)}")
 
-    # If nothing really stood out:
     if not (v_ranges or e_ranges or s_ranges or hi_input):
         summary_md.append("> No standout emotional peaks detected — performance looks steady.")
 
-    # Build moments list (unified, labeled)
     moments: List[Dict[str, Any]] = []
 
     for a, b in v_ranges:
@@ -364,7 +344,6 @@ def summarize_emotion(emotion_result: Dict[str, Any]) -> Tuple[str, List[Dict[st
     for a, b in s_ranges:
         moments.append({"label": "Big smiles", "start_s": a, "end_s": b})
 
-    # Include model-provided highlights (keep their label/reason if present)
     for h in hi_input:
         start_s = int(h.get("start") or h.get("start_s") or h.get("t") or 0)
         end_s   = int(h.get("end")   or h.get("end_s")   or start_s)
@@ -379,13 +358,11 @@ def build_emotion_chart(emotion_result: Dict[str, Any]) -> go.Figure:
     signals  = root.get("signals", {}) or {}
     timeline = root.get("timeline", []) or []
 
-    # Means and adaptive thresholds
     val_mean = float(signals.get("valence_mean", 0.0))
     eng_mean = float(signals.get("energy_mean", 0.0))
     VALENCE_HI = max(0.75, val_mean + 0.20)
     ENERGY_HI  = max(0.75, eng_mean + 0.20)
 
-    # Extract series
     t: List[int] = []
     val: List[float] = []
     eng: List[float] = []
@@ -400,7 +377,6 @@ def build_emotion_chart(emotion_result: Dict[str, Any]) -> go.Figure:
         fig.add_trace(go.Scatter(x=t, y=val, name="Valence", mode="lines+markers"))
         fig.add_trace(go.Scatter(x=t, y=eng, name="Energy",  mode="lines+markers"))
 
-    # Horizontal reference lines (means & thresholds)
     shapes = []
     annotations = []
 

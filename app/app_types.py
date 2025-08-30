@@ -1,5 +1,4 @@
 from typing import TypedDict
-# app/app_types.py
 from dataclasses import dataclass
 from typing import List, Dict, Any
 
@@ -38,6 +37,3 @@ class AnalysisBundle:
 class AnalyzeResult(TypedDict, total=False):
     avg_brightness: float
     brightness_score: float
-    # lqi: float
-    # dimensions: dict
-    # tips: list[str]

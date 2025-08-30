@@ -2,7 +2,6 @@ from __future__ import annotations
 from dataclasses import replace
 from .scene_config import SceneConfig
 
-# —— 根据时长自动调整采样率与 OCR 周期 ——
 def autoscale_config(cfg: SceneConfig, duration_s: float) -> SceneConfig:
     if not cfg.autoscale_enabled:
         return cfg
