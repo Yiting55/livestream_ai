@@ -73,17 +73,6 @@ While the system does not yet implement a full reward mechanism, it directly sup
 
 ---
 
-## 🔮 **What's Next for the Project?**
-
-The system is a stepping stone toward creating a fair reward mechanism and can evolve into a fully-fledged **profit-sharing solution**. Upcoming features will include:
-
-- **Profit-Sharing Algorithms**: Using engagement data and performance metrics to design fair profit-sharing mechanisms for creators.
-- **Enhanced Fraud Detection**: Improve anti-fraud capabilities with machine learning to automatically detect system gaming.
-- **Real-Time Analysis**: Expanding to analyze live streams in real-time, providing instant feedback on creator performance.
-- **Bonus Point Mechanism Expansion**: Creating more sophisticated bonus point systems that reward creators for exceptional performance and engagement across multiple dimensions.
-- **AML and Compliance Features**: Enhancing the system's ability to ensure **Anti-Money Laundering** (AML) compliance and flagging content that may violate platform rules or legal regulations.
-
----
 
 ## ⚙️ **Tech Stack**
 
