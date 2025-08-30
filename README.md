@@ -37,10 +37,12 @@ cd livestream_ai
 ### 2. Create and activate virtual environment
 python3.11.9 -m venv venv
 
-#macOS / Linux:
+#macOS / Linux
+
 source venv/bin/activate
 
-#Windows:
+#Windows
+
 venv\Scripts\activate
 
 ### 3. Install dependencies
@@ -53,10 +55,12 @@ pip install faster-whisper moviepy
 ffmpeg -version
 
 ### 6. Install Tesseract OCR (for Scene Analysis, optional)
-#macOS:
+#macOS
+
 brew install tesseract
 
-#Windows (with Scoop):
+#Windows (with Scoop)
+
 scoop install tesseract
 
 ### 7. Run the application
