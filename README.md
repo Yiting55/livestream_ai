@@ -63,15 +63,15 @@ streamlit run app/main.py
 
 ## 📚Tech Stack
 
-Python 3.9+ / 3.10+
-Streamlit – interactive UI framework
-faster-whisper / openai-whisper – ASR (speech recognition)
-OpenCV – video frame processing (brightness, saturation)
-Tesseract OCR – brand/logo detection
-MediaPipe – facial expression / emotion analysis
-MoviePy – audio extraction & frame handling
-Plotly – visualization (charts, timelines, radar)
-NumPy / Pandas – data processing
+- Python 3.9+ / 3.10+
+- Streamlit – interactive UI framework
+- faster-whisper / openai-whisper – ASR (speech recognition)
+- OpenCV – video frame processing (brightness, saturation)
+- Tesseract OCR – brand/logo detection
+- MediaPipe – facial expression / emotion analysis
+- MoviePy – audio extraction & frame handling
+- Plotly – visualization (charts, timelines, radar)
+- NumPy / Pandas – data processing
 
 ## 🚩 Problem Addressed
 Livestream e-commerce is expanding rapidly, but quality and compliance vary greatly.
