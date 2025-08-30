@@ -84,7 +84,6 @@ While the system does not yet implement a full reward mechanism, it directly sup
 - **MoviePy**: Video/audio extraction for content analysis.
 - **Plotly / Matplotlib**: For visualizing key metrics like content quality and engagement.
 - **NumPy / Pandas**: Data handling for performance metrics and scoring.
-- **reportlab (optional)**: PDF report generation for downloadable content analysis reports.
 
 ---
 
